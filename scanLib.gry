@@ -1,0 +1,45 @@
+//Local only
+Version = "v_1.0.0"
+
+folder = get_shell.host_computer.File("/lib")
+metaxploit = include_lib("/lib/metaxploit.so")
+info = "Name" + " " + "Memory" + " " + "Address" + "\n"
+
+
+getLib = function(folder)
+	if folder.is_folder == false then return null end if
+	files = folder.get_files
+	for file in files
+		Name = file.name
+		if Name == "crypto.so" or Name == "metaxploit.so" then continue end if
+		lib = file.path
+		scanLib(lib, Name)
+	end for
+end function
+
+
+
+scanLib = function(lib, Name)
+	if not lib then return null end if
+	metalib = metaxploit.load(lib)
+	memory = metaxploit.scan(metalib)
+	for mem in memory
+		address = metaxploit.scan_address(metalib, mem).split("Unsafe check:")
+		for add in address
+			if add == address[0] then continue end if
+			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
+			globals.info = info + Name + " " + mem + " " + value + "\n"
+		end for
+	end for
+end function
+
+
+
+
+
+if not folder then exit("An error has occurred: Expected folder")
+if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so")
+if not metaxploit then exit("Metaxploit not found")
+
+getLib(folder)
+print(format_columns(info))
