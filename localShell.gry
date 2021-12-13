@@ -1,0 +1,103 @@
+Version = "v_1.0.1"
+
+comp = null
+shell = null
+pass = null
+Name = get_shell.host_computer.File("/bin/xdecipher")
+if Name != get_shell.host_computer.File("/bin/xdecipher") then Name = get_shell.host_computer.File(current_path + "/xdecipher") end if
+
+
+
+
+
+
+
+quit = function(shell, pass)
+	if Name then
+		get_shell.launch("/bin/xdecipher", pass)
+	else
+		print(pass)
+	end if
+	shell.start_terminal
+end function
+
+
+
+
+localShell = function()
+
+	memory = metaxploit.scan(metaLib)
+	for mem in memory
+		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+		for add in address
+			if add == address[0] then continue end if
+			if shell and pass then quit(shell, pass) end if
+			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
+			value = value.replace("\n", "")	
+			result = metaLib.overflow(mem, value)
+			if typeof(result) != "shell" and typeof(result) != "computer" then continue end if
+			if typeof(result) == "shell" then
+				shell = result
+				comp = result.host_computer
+				if typeof(result) == "computer" then
+					comp = result.host_computer
+				end if
+				file = comp.File("/etc/passwd")
+				if not file then continue end if
+				cont = file.get_content
+				if not cont then continue end if
+				pass = cont.split("\n")[0]
+				if shell and pass then quit(shell, pass) end if
+			end if
+		end for
+	end for
+	
+	if shell then 
+		shell.start_terminal
+		if pass != null then print(pass) end if
+	end if
+	print("Attempt failed")
+	
+end function
+
+
+
+meta = function()
+	n = 0
+	while true
+		if n == 0 then
+			metaLib = metaxploit.load("/lib/init.so")
+		else if n == 1 then
+			metaLib = metaxploit.load("/lib/kernel_module.so")
+		else if n == 2 then
+			metaLib = metaxploit.load("/lib/net.so")
+		else if n >= 3 then 
+			exit("Explot failed")
+		end if
+		n = n+1
+		if not metaLib then continue end if
+		
+		localShell()
+		
+		metaLib = null
+	end while	
+	
+end function
+
+
+
+
+
+
+if params.len > 1 or params[0] == "-h" or params[0] == "-help" or params.len > 2 then exit("<b>Usage: "+program_path.split("/")[-1]+" [-opt] [test]</b>") end if
+end if
+	
+
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then
+    metaxploit = include_lib(current_path + "/metaxploit.so")
+end if
+if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
+
+meta()
+

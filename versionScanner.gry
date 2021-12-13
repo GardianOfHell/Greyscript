@@ -1,0 +1,55 @@
+Version = "v_1.0.0"
+
+files = get_shell.host_computer.File("/lib")
+files = files.get_files
+
+
+
+
+getFile = function()
+
+	info = "Name Version"
+	for file in files
+		lib = file.path
+		metaLib = metaxploit.load(lib)
+		version = metaLib.version
+		name = metaLib.lib_name
+		n = name
+		info = info + "\n" + n + " " + version
+	end for
+	info = info + "\n"
+	print(format_columns(info))
+
+end function
+
+getFile2 = function()
+
+	path = params[0]
+	info = "Name Version"
+	metaLib = metaxploit.load(path)
+	version = metaLib.version
+	name = metaLib.lib_name
+	n = name
+	info = info + "\n" + n + " " + version
+	info = info + "\n"
+	print(format_columns(info))
+
+end function
+
+
+
+
+
+
+
+if params.len != 0 then
+	if params.len > 1 or params[0] == "-h" or params[0] == "-help" then exit("<b>Usage: " + program_path.split("/")[1] + "[opt] [Libary path]") end if
+end if
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then include_lib(current_path + "/metaxploit.so") end if
+if not metaxploit then exit("Metaxploit not found") end if
+
+
+if params.len == 0 then getFile() end if
+if params.len == 1 then getFile2() end if
+
