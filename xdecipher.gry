@@ -1,97 +1,67 @@
-version = "v_a0.5.7"
+version = "v_1.0.0"
 
-cryptools = include_lib("/lib/crypto.so")
-file = null
-file = get_shell.host_computer.File(origFile)
 
+//Function----------------------------------------
 
 
 
-
-
-xdecipher = function()
-	
-	getPass = function(Pass)
-		passwd = cryptools.decipher(Pass)
-		return passwd
-	end function
-	UserPass = params[0]
-	UserPass = UserPass.split(":")
-	Pass = UserPass[1]
-	User = UserPass[0]
-	Password = getPass(Pass)
-
-	print("<b>User: "+User )
-	print("<b>Password: "+Password)
-	
-end function
-
-
-decipher = function()
-
-	origFile = params[0]
-	file = get_shell.host_computer.File(origFile)
-	if not file then exit("decipher: can't find " + origFile) end if
-	if not file.has_permission("r") then exit("can't read file. Permission denied") end if
-	if file.get_content.len == 0 then exit("decipher: no users found") end if
-		
-	lines = file.get_content.split("\n")
-	password = null
-	if lines.len == 1 then
-		
-		userPass = lines[0].split(":")
-		password = GetPassword(userPass)
-	else
-		print("Multiple users found.")
-		numLine = 1
-		for line in lines
-			if line.len > 0 then
-				print(numLine + ": " + line)
+xdecipher = function(filepath, text)
+	Path = filepath.split(":")
+	if Path.len == 1 then
+		if not filepath.has_permission("r") then return
+		if file.get_content.len == 0 then return
+		lines = file.get_content.split("\n")
+		if lines.len == 1 then
+			UserPass = file.get_content.split(":")
+			User = UserPass[0]
+			password = GetPassword(UserPass)
+			print("<b>User: " + User + "\n<b>Password: " + password)
+		else
+			numLine = 1
+			for line in lines
+				print(numLine + ":" + line)
 				numLine = numLine + 1
-			end if
-		end for
-		option = ""
-		inputOk = false
-		while( not inputOk )
-			option = user_input("Select user: ").to_int
-			if typeof(option) != "number" or (option < 1 or option > lines.len) then
-				print("Invalid input. Type a valid number")
-			else 
-				inputOk = true
-			end if
-		end while
-			
-		userPass = lines[option - 1].split(":")
-		print("Selected user: " + userPass[0] + "\nDeciphering...")
-		password = GetPassword(userPass)
+			end for
+			validInput = true
+			while validInput
+				input = user_input("Select user: ").to_int
+				if typeof(input) != "number" or input < 1 or input > lines.len then continue
+				validInput = false
+			end while
+			UserPass = lines[input -1].split(":")
+			User = UserPass[0]
+			password = GetPassword(UserPass)
+			print("<b>User: " + User + "\n<b>Password: " + password)
+
+		end if		
 	end if
-		
-	if not password then exit("Can't find password :(") end if
-	print("<b>password found! => " + password)
-
+	if Path.len != 1 then 
+		UserPass = text.split(":")
+		User = UserPass[0]
+		password = GetPassword(UserPass)
+		print("<b>User: " + User + "\n<b>Password: " + password)
+	end if
 end function
 
 
-GetPassword = function(userPass)
-		if userPass.len != 2 then exit("decipher: " + file.path + " wrong syntax") end if
-		password = cryptools.decipher(userPass[1])
-		return password
+GetPassword = function(UserPass)
+	if UserPass.len != 2 then exit("decipher: " + file.path + " wrong syntax") end if
+	password = cryptools.decipher(UserPass[1])
+	return password
 end function
 
 
-
-
-
+//Code-------------------------------------------
 
 
 
 if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("xdecipher [Encripted password] or [file path]") end if
+cryptools = include_lib("/lib/crypto.so")
 if not cryptools then cryptools = include_lib("/lib/crypto.so") end if 
 if not cryptools then exit("Error: Missing crypto library") end if
-origFile = params[0]
 
-if file != null then
-	decipher()
-else if params[0] > 32 then
-	xdecipher()
-end if
+filepath = params[0]
+text = params[0]
+file = get_shell.host_computer.File(filepath)
+
+xdecipher(filepath, text)

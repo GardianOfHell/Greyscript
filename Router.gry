@@ -1,0 +1,174 @@
+Version = "v_a0.2.0"
+access = null
+
+//Function------------------------------------
+
+
+
+
+scan_meta = function()
+    lanIp = user_input("Enter a LAN address: ")
+    b = true
+    while b
+        print("\n")
+        print("1: Bankaccounts" + "\n2: Passwords" + "\n3: Both")
+        input = user_input("Choose: ")
+        b = validInput(input)
+    end while
+
+    memory = metaxploit.scan(metaLib)
+    for mem in memory
+        address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+        for add in address
+            if add == address[0] then continue end if
+            value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
+            value = value.replace("\n", "")	
+            result = metaLib.overflow(mem, value, lanIp)
+            typeObject = typeof(result)
+            
+            if typeObject != "file" and typeObject != "shell" and typeObject != "computer" then continue end if
+            checkShell(typeObject, result)
+            checkFile(typeObject, result)
+            checkComp(typeObject, result)
+            
+            if input == 1 then
+                getBank(userFolders)
+                if Bank then quit()
+            else if input == 2 then
+                getPass(userPasswd)
+                if Pass then quit()
+            else if input == 3 then
+                getBank(userFolders)
+                getPass(userPasswd)
+                if Pass and Bank then quit()
+            end if
+        end for
+    end for
+end function
+
+checkShell = function(typeObject, result)
+if typeObject != "shell" then return
+    globals.shell = result
+    globals.comp = shell.host_computer
+    homeFolder = comp.File("/home")
+    passFile = comp.File("/etc/passwd")
+    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
+    if not passFile.is_folder and passFile then globals.userPasswd = passFile
+end function
+
+checkComp = function(typeObject, result)
+    if typeObject != "computer" then return
+    globals.comp = result
+    homeFolder = comp.File("/home")
+    passFile = comp.File("/etc/passwd")
+    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
+    if not passFile.is_folder and passFile then globals.userPasswd = passFile
+end function
+
+checkFile = function(typeObject, result)
+    if typeObject != "file" then return
+    globals.access = result
+    homeFolder = result.File("/home")
+    passFile = result.File("/etc/passwd")
+    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
+    if not passFile.is_folder and passFile then globals.userPasswd = passFile
+end function
+
+
+getBank = function(userFolders)
+    Bank = false
+    if not userFolders then return
+    file = access
+    if not file then file = comp
+    for userFolder in userFolders
+        bankFile = file.File("/home/" + userFolder.name + "/Config/Bank.txt")
+        if not bankFile then continue
+        if not bankFile.has_permission("r") then
+            print("Error: can't read file contents. Permission deniend")
+            continue
+        else
+            userBank = bankFile.get_content.split(":")
+            BankPass = GetPasswordBank(userBank)
+            if not BankPass then continue
+            print("<b>Bank account: " + userBank[0] +"\n<v>Bank Password: " + BankPass)
+            globals.Bank = true
+        end if
+    end for
+end function
+
+GetPasswordBank = function(userBank)
+	if userBank.len != 2 then return
+	password = cryptools.decipher(userBank[1])
+	return password
+end function
+
+getPass = function(userPasswd)
+    Pass = false
+    if not userPasswd or not userPasswd.has_permission("r") then
+        print("Error: Can't access file")
+        return
+    end if
+    if userPasswd.is_binary then
+        print("Error: file is binary")
+        return
+    end if
+    listUsers = userPasswd.get_content.split("\n")
+    for user in listUsers
+        UserPassword = user.split(":")
+        password = GetPasswordUser(UserPassword)
+        if not password then continue
+        print("<b>User: " + UserPassword[0] + "\n<b>Password: " + password)
+        globals.Pass = true
+    end for
+end function
+
+GetPasswordUser = function(UserPassword)
+    if UserPassword < 2 or UserPassword > 2 then return // != dosen't work?
+    password = cryptools.decipher(UserPassword[1])
+    return password
+end function
+
+validInput = function(input)
+    if input < 1 then
+        print("Invalid input")
+    else if input > 3 then
+        print("Invalid input")
+    else
+        b = false
+        return b
+    end if
+end function
+
+quit = function()
+    exit("Exploit successful")
+end function
+
+
+//Code-------------------------------
+
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]</b>")
+
+address = params[0]
+
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then
+    metaxploit = include_lib(current_path + "/metaxploit.so")
+end if
+if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder")
+
+cryptools = include_lib("/lib/crypto.so")
+if not cryptools then
+	cryptools = include_lib(current_path + "/crypto.so")
+end if
+if not cryptools then exit("Error: Can't find crypto.so library in the /lib path or the current folder")
+
+
+
+net_session = metaxploit.net_use( address )
+if not net_session then exit("Error: can't connect to net session")
+metaLib = net_session.dump_lib
+if not metaLib then exit("Error: kernel_router.so not found.")
+
+print(Version)
+scan_meta()
+
