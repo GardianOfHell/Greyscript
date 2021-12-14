@@ -1,4 +1,4 @@
-version = "v1.2.6"
+version = "v_1.2.6"
 
 
 
@@ -77,6 +77,6 @@ else
 end if
 
 
-print("\nStarting nmap v2.0 at " + current_date)
+print("\nStarting nmap v1.2.6 at " + current_date)
 print("Interesting ports on " + params[0] + "\n")
 print_ports(ports)
