@@ -1,82 +1,56 @@
-version = "v_1.2.6"
+Version = "v_1.3.0"
 
+info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN"
 
+//Function------------------------------
 
-print_ports = function(ports)
-	if isLanIp == true then	
-		
-		if typeof(ports) == "string" then exit(ports) end if
-		if(ports.len == 0) then exit("Scan finished. No open ports.") end if
-		
-		info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN"  
-		
-		if(ports.len == 0) then exit("Scan finished. No open ports.") end if
-		for port in ports
-			service_info = router.port_info(port)
-			lan_ips = port.get_lan_ip
-			port_status = "<#F7DC6F>open<#00DD13FF>"
-
-			if(port.is_closed and not isLanIp) then
-				port_status = "<#FF0000>closed<#00DD13FF>"
-			end if
-			info = info + "\n" + port.port_number + " " + port_status + " " + service_info + " " + lan_ips
-		end for
-		print(format_columns(info) + "\n")
-	else
-		if typeof(ports) == "string" then exit(ports) end if
-		if(ports.len == 0) then exit("Scan finished. No open ports.") end if
-		
-		info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN"   
-		if(ports.len == 0) then exit("Scan finished. No open ports.") end if
-		
-		for port in ports
-			service_info = router.port_info(port)
-			lan_ips = port.get_lan_ip
-			port_status = "<#F7DC6F>open<#00DD13FF>"
-			
-			for u in used
-				ips = u.get_lan_ip
-				if lan_ips == ips then port_status = "<#00DD13>routed<#00DD13FF>" end if
-			end for
-			
-			if(port.is_closed and not isLanIp) then
-				port_status = "<#FF0000>closed<#00DD13FF>"
-			end if
-			info = info + "\n" + port.port_number + " " + port_status + " " + service_info  + " " + lan_ips
-		end for
-		print(format_columns(info) + "\n")
-	end if
+getPort = function(router)    
+    if not router then return
+    ipList = router.devices_lan_ip
+    for ip in ipList
+        globals.ports = router.device_ports(ip)
+    end for
 end function
 
+portInfo = function(ports, router)
+    if not router or not ports then exit("Ports,router")
+    usedPorts = router.used_ports
+    for port in ports
+        service_info = router.port_info(port)
+        portNumber = port.port_number
+        lan = port.get_lan_ip
+        port_status = "<#F7DC6F>open<#00DD13FF>"
 
+        if port.is_closed then port_status = "<#FF0000>closed<#00DD13FF>"
+        for used in usedPorts
+            ip = used.get_lan_ip
+            if lan == ip then port_status = "<#00DD13>routed<#00DD13FF>"
+        end for
+        info = info + "\n" + portNumber + " " + port_status + " " + service_info  + " " + lan
+    end for
+    print(format_columns(info))
+end function
+
+isLan = function(ipAddress)
+    
+
+end function
+
+//Code---------------------------------------
 
 
 
 if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>xmap: [ip_address]") end if
-
 if not is_valid_ip(params[0]) then exit("invalid ip address") end if
 if not get_shell.host_computer.is_network_active then exit("can't connect. No internet access.") end if
 
 ipAddress = params[0]
-isLanIp = is_lan_ip(ipAddress)
 router = get_router(ipAddress)
-if not isLanIp then used = router.used_ports end if
-
-if isLanIp then router = get_router end if
-if router == null then exit("ip address not found") end if
+if is_lan_ip(ipAddress) then router = get_router
 
 
-if isLanIp == false then
-	ports = []
-	for lan in router.devices_lan_ip
-		ports = ports+router.device_ports(lan)
-	end for
-	
-else
-	ports = router.device_ports(ipAddress)
-end if
-
-
-print("\nStarting nmap v1.2.6 at " + current_date)
+getPort(router)
+print("\nStarting xmap " + Version + " at " + current_date)
+print("Public IP: " + router.public_ip)
 print("Interesting ports on " + params[0] + "\n")
-print_ports(ports)
+portInfo(ports, router)
