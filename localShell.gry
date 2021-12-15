@@ -4,7 +4,7 @@ comp = null
 shell = null
 pass = null
 Name = get_shell.host_computer.File("/bin/xdecipher")
-if Name != get_shell.host_computer.File("/bin/xdecipher") then Name = get_shell.host_computer.File(current_path + "/xdecipher") end if
+if not Name then Name = get_shell.host_computer.File(current_path + "/xdecipher") end if
 
 
 

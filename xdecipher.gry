@@ -22,11 +22,10 @@ xdecipher = function(filepath, text)
 				print(numLine + ":" + line)
 				numLine = numLine + 1
 			end for
-			validInput = true
 			while validInput
 				input = user_input("Select user: ").to_int
 				if typeof(input) != "number" or input < 1 or input > lines.len then continue
-				validInput = false
+				break
 			end while
 			UserPass = lines[input -1].split(":")
 			User = UserPass[0]
@@ -45,7 +44,7 @@ end function
 
 
 GetPassword = function(UserPass)
-	if UserPass.len != 2 then exit("decipher: " + file.path + " wrong syntax") end if
+	if UserPass.len != 2 then return "decipher: wrong syntax" end if
 	password = cryptools.decipher(UserPass[1])
 	return password
 end function
