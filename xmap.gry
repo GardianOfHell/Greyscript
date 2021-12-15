@@ -1,56 +1,55 @@
-Version = "v_1.3.0"
+Version = "v_1.3.2"
 
-info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN"
+info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN" + "\n"
 
 //Function------------------------------
 
-getPort = function(router)    
-    if not router then return
+getPort = function(router)
     ipList = router.devices_lan_ip
+    ports = []
     for ip in ipList
-        globals.ports = router.device_ports(ip)
+        ports = ports + router.device_ports(ip)
     end for
+    return ports
 end function
 
-portInfo = function(ports, router)
-    if not router or not ports then exit("Ports,router")
+portInfo = function(router, ipAddress)
+    if not ports then return
     usedPorts = router.used_ports
     for port in ports
         service_info = router.port_info(port)
         portNumber = port.port_number
         lan = port.get_lan_ip
+        if is_lan_ip(ipAddress) and lan != ipAddress then continue
+        
         port_status = "<#F7DC6F>open<#00DD13FF>"
-
         if port.is_closed then port_status = "<#FF0000>closed<#00DD13FF>"
         for used in usedPorts
             ip = used.get_lan_ip
             if lan == ip then port_status = "<#00DD13>routed<#00DD13FF>"
         end for
-        info = info + "\n" + portNumber + " " + port_status + " " + service_info  + " " + lan
+        info = info + portNumber + " " + port_status + " " + service_info  + " " + lan + "\n"
     end for
     print(format_columns(info))
 end function
 
-isLan = function(ipAddress)
-    
-
-end function
 
 //Code---------------------------------------
 
 
 
 if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>xmap: [ip_address]") end if
-if not is_valid_ip(params[0]) then exit("invalid ip address") end if
+if not is_valid_ip(params[0].trim) then exit("invalid ip address") end if
 if not get_shell.host_computer.is_network_active then exit("can't connect. No internet access.") end if
 
-ipAddress = params[0]
-router = get_router(ipAddress)
+ipAddress = params[0].trim
+if not is_lan_ip then router = get_router(ipAddress)
 if is_lan_ip(ipAddress) then router = get_router
+if not router then exit("Router not found")
 
 
-getPort(router)
+ports = getPort(router)
 print("\nStarting xmap " + Version + " at " + current_date)
 print("Public IP: " + router.public_ip)
 print("Interesting ports on " + params[0] + "\n")
-portInfo(ports, router)
+portInfo(router, ipAddress)
