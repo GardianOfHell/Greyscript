@@ -123,7 +123,7 @@ getPass = function(userPasswd)
 end function
 
 GetPasswordUser = function(UserPassword)
-    if UserPassword < 2 or UserPassword > 2 then return // != dosen't work?
+    if UserPassword.len != 2
     password = cryptools.decipher(UserPassword[1])
     return password
 end function
