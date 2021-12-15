@@ -38,7 +38,7 @@ end function
 
 
 
-if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>xmap: [ip_address]") end if
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]") end if
 if not is_valid_ip(params[0].trim) then exit("invalid ip address") end if
 if not get_shell.host_computer.is_network_active then exit("can't connect. No internet access.") end if
 
