@@ -9,14 +9,7 @@ access = null
 
 scan_meta = function()
     lanIp = user_input("Enter a LAN address: ")
-    b = true
-    while b
-        print("\n")
-        print("1: Bankaccounts" + "\n2: Passwords" + "\n3: Both")
-        input = user_input("Choose: ")
-        b = validInput(input)
-    end while
-
+    input = validInput()
     memory = metaxploit.scan(metaLib)
     for mem in memory
         address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
@@ -138,17 +131,22 @@ end function
 
 // More stuff
 
-validInput = function(input)
-    if input < 1 then
-        print("Invalid input")
-    else if input > 3 then
-        print("Invalid input")
-    else
-        b = false
-        return b
-    end if
+validInput = function()
+    while true
+        print("\n")
+        print("1: Mailaccounts" + "\n2: Passwords" + "\n3: Both")
+        input = user_input("Choose: ").trim
+        
+        if input < 1 then
+            print("Invalid input")
+        else if input > 3 then
+            print("Invalid input")
+        else
+            break
+        end if
+    end while
+    return input
 end function
-
 
 
 quit = function()
