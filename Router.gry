@@ -50,7 +50,7 @@ end function
 // Formating the result to someting the exploit can use.
 
 checkShell = function(typeObject, result)
-if typeObject != "shell" then return
+    if typeObject != "shell" then return
     globals.shell = result
     globals.comp = shell.host_computer
     homeFolder = comp.File("/home")
