@@ -11,6 +11,7 @@ if not Name then Name = get_shell.host_computer.File(current_path + "/xdecipher"
 
 
 // Quits function if shell and password
+	// TODO: decipher
 
 quit = function(shell, pass)
 	if Name then
@@ -59,8 +60,8 @@ localShell = function()
 end function
 
 
-// TODO: Make it work on all libs
-	// Shift trough libs
+// Shift trough libs
+	// TODO: Make it work on all libs
 
 meta = function()
 	n = 0

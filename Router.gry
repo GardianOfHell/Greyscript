@@ -41,7 +41,7 @@ scan_meta = function()
 end function
 
 // Formating the result to someting the exploit can use.
-
+    // TODO: Rework
 checkShell = function(typeObject, result)
     if typeObject != "shell" then return
     globals.shell = result
@@ -70,8 +70,9 @@ checkFile = function(typeObject, result)
     if not passFile.is_folder and passFile then globals.userPasswd = passFile
 end function
 
-// TODO: Redo
+
 // Prints stuff (passwords)
+    // TODO: Rework
 
 getBank = function(userFolders)
     Bank = false

@@ -26,9 +26,9 @@ scan_meta = function(address, port)
 			result = metaLib.overflow(mem, value)
             typeObject = typeof(result)
             if typeObject != "shell" and typeObject != "cumputer" and typeObject != "file" then continue
-            checkShell(typeObject, result)  //Globals: shell, comp, userFolder, userPasswd
-            checkFile(typeObject, result)   //Globals: access == file, userFolder, userPasswd
-            checkComp(typeObject, result)   //Globals: comp, userFolder, userPasswd
+            checkShell(typeObject, result)
+            checkFile(typeObject, result)
+            checkComp(typeObject, result)
 
             if input == 1 then
                 getMail()
