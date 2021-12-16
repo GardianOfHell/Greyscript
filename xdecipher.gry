@@ -46,7 +46,7 @@ end function
 // Deciphers content
 
 GetPassword = function(UserPass)
-	if UserPass.len != 2 then return "decipher: wrong syntax" end if
+	if UserPass.len != 2 then return "decipher: wrong syntax"
 	password = cryptools.decipher(UserPass[1])
 	return password
 end function

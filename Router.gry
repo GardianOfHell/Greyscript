@@ -77,7 +77,7 @@ checkFile = function(typeObject, result)
     if not passFile.is_folder and passFile then globals.userPasswd = passFile
 end function
 
-
+// TODO: Redo
 // Prints stuff (passwords)
 
 getBank = function(userFolders)
@@ -131,7 +131,7 @@ GetPasswordBank = function(userBank)
 end function
 
 GetPasswordUser = function(UserPassword)
-    if UserPassword.len != 2
+    if UserPassword.len != 2 return
     password = cryptools.decipher(UserPassword[1])
     return password
 end function
