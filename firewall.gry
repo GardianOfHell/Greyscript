@@ -4,8 +4,12 @@ Version = "v_1.0.0"
 a = null
 address = params[0]
 
+//Function----------------------------------------
+
+// Main Function
+	// Disables firewall
+
 firewall = function(address)
-	
 	net_session = metaxploit.net_use( address )
 	if not net_session then exit("Error: can't connect to net session") end if
 	metaLib = net_session.dump_lib
@@ -22,31 +26,24 @@ firewall = function(address)
 			if typeof(result) == "number" then a = "skip" end if
 		end for
 	end for
-
 end function
 
-check = function(address)
-	
+// Check for existing firewall
+
+check = function(address)	
 	router = get_router(address)
-	if router then 
-		rules = router.firewall_rules
-	else
-		exit("Address not found")
-	end if
-	if typeof(rules) == "string" then exit("Someting went wrong ;(") end if
-	if rules.len != 0 then
-		firewall(address)
-	else
-		print("No firewall found")
-	end if
+	if not router then exit("Address not found")
+	rules = router.firewall_rules
 	
+	if typeof(rules) == "string" then exit("Someting went wrong ;(") end if
+	if rules.len == 0 then
+		print("No firewall found")
+		return
+	end if
+	firewall(address)
 end function
 
-
-
-
-
-
+//Code---------------------------------------
 
 if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]</b>") end if
 metaxploit = include_lib("/lib/metaxploit.so")

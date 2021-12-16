@@ -3,7 +3,8 @@ version = "v_1.0.0"
 
 //Function----------------------------------------
 
-
+// Main function
+	// get Files and prints encriped content
 
 xdecipher = function(filepath, text)
 	Path = filepath.split(":")
@@ -42,6 +43,7 @@ xdecipher = function(filepath, text)
 	end if
 end function
 
+// Deciphers content
 
 GetPassword = function(UserPass)
 	if UserPass.len != 2 then return "decipher: wrong syntax" end if

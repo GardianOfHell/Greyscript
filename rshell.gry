@@ -1,7 +1,7 @@
 metaxploit = include_lib ( "/lib/metaxploit.so" )
 if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so") end if
-if not metaxploit then exit("mx not found") end if
+if not metaxploit then exit("Metaxploit not found") end if
 
-metaxploit.rshell_client ("[ip]",1222,"rootkit") //Please change the IP
+metaxploit.rshell_client ("[ip]",1222,"rootkit") // Please change the IP and port (default port == 1222)
 
 

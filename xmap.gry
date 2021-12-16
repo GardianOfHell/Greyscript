@@ -1,8 +1,10 @@
 Version = "v_1.3.2"
 
-info = "PORT <#00DD13>STATE<#00DD13FF> SERVICE VERSION LAN" + "\n"
+info = "PORT <#00DD13>STATE</color> SERVICE VERSION LAN" + "\n" //! unknown
 
 //Function------------------------------
+
+// puts all ports in a list
 
 getPort = function(router)
     ipList = router.devices_lan_ip
@@ -13,6 +15,9 @@ getPort = function(router)
     return ports
 end function
 
+// Main function
+    // Prints information for every optained port
+
 portInfo = function(router, ipAddress)
     if not ports then return
     usedPorts = router.used_ports
@@ -22,20 +27,19 @@ portInfo = function(router, ipAddress)
         lan = port.get_lan_ip
         if is_lan_ip(ipAddress) and lan != ipAddress then continue
         
-        port_status = "<#F7DC6F>open<#00DD13FF>"
-        if port.is_closed then port_status = "<#FF0000>closed<#00DD13FF>"
+        port_status = "<#F7DC6F>open</color>" //! bug causes by <color=yellow> in "print(format_colums(info))"
+        if port.is_closed then port_status = "<#FF0000>closed</color>" //! unknown
         for used in usedPorts
             ip = used.get_lan_ip
-            if lan == ip then port_status = "<#00DD13>routed<#00DD13FF>"
+            if lan == ip then port_status = "<#00DD13>routed</color>" //! unknown
         end for
         info = info + portNumber + " " + port_status + " " + service_info  + " " + lan + "\n"
     end for
-    print(format_columns(info))
+    print(format_columns(info)) //! bug causes by <color=yellow> in "print(format_colums(info))"
 end function
 
 
 //Code---------------------------------------
-
 
 
 if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]") end if

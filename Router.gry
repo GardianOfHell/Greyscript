@@ -4,7 +4,8 @@ access = null
 //Function------------------------------------
 
 
-
+// Main function
+    // Executes exploit resulting in shell and password
 
 scan_meta = function()
     lanIp = user_input("Enter a LAN address: ")
@@ -46,6 +47,8 @@ scan_meta = function()
     end for
 end function
 
+// Formating the result to someting the exploit can use.
+
 checkShell = function(typeObject, result)
 if typeObject != "shell" then return
     globals.shell = result
@@ -75,6 +78,8 @@ checkFile = function(typeObject, result)
 end function
 
 
+// Prints stuff (passwords)
+
 getBank = function(userFolders)
     Bank = false
     if not userFolders then return
@@ -96,11 +101,6 @@ getBank = function(userFolders)
     end for
 end function
 
-GetPasswordBank = function(userBank)
-	if userBank.len != 2 then return
-	password = cryptools.decipher(userBank[1])
-	return password
-end function
 
 getPass = function(userPasswd)
     Pass = false
@@ -122,11 +122,21 @@ getPass = function(userPasswd)
     end for
 end function
 
+// Password cracking
+
+GetPasswordBank = function(userBank)
+	if userBank.len != 2 then return
+	password = cryptools.decipher(userBank[1])
+	return password
+end function
+
 GetPasswordUser = function(UserPassword)
     if UserPassword.len != 2
     password = cryptools.decipher(UserPassword[1])
     return password
 end function
+
+// More stuff
 
 validInput = function(input)
     if input < 1 then
@@ -138,6 +148,8 @@ validInput = function(input)
         return b
     end if
 end function
+
+
 
 quit = function()
     exit("Exploit successful")
@@ -151,18 +163,12 @@ if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>U
 address = params[0]
 
 metaxploit = include_lib("/lib/metaxploit.so")
-if not metaxploit then
-    metaxploit = include_lib(current_path + "/metaxploit.so")
-end if
+if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so")
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder")
 
 cryptools = include_lib("/lib/crypto.so")
-if not cryptools then
-	cryptools = include_lib(current_path + "/crypto.so")
-end if
+if not cryptools then cryptools = include_lib(current_path + "/crypto.so")
 if not cryptools then exit("Error: Can't find crypto.so library in the /lib path or the current folder")
-
-
 
 net_session = metaxploit.net_use( address )
 if not net_session then exit("Error: can't connect to net session")

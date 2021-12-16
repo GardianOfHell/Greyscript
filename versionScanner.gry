@@ -1,6 +1,8 @@
 Version = "v_1.0.0"
 
+//Function---------------------------------------------
 
+// Prints the version of every lib and the name
 
 getFile = function()
 	files = get_shell.host_computer.File("/lib")
@@ -24,7 +26,7 @@ getFile = function()
 end function
 
 
-
+//Code---------------------------------------
 
 if params.len != 0 then
 	if params.len > 1 or params[0] == "-h" or params[0] == "-help" then exit("<b>Usage: " + program_path.split("/")[-1] + " " + "[opt] [Libary path]") end if

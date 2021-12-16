@@ -7,9 +7,9 @@ Name = get_shell.host_computer.File("/bin/xdecipher")
 if Name != get_shell.host_computer.File("/bin/xdecipher") then get_shell.host_computer.File(current_path + "/xdecipher") end if
 
 
+//Function------------------------------------------
 
-
-
+// Quits function if shell and password
 
 quit = function(shell, pass)
 	if Name then
@@ -20,6 +20,8 @@ quit = function(shell, pass)
 	shell.start_terminal
 end function
 
+// Main function
+	// Executes exploit resulting in shell and password
 
 getShell = function()
 	memory = metaxploit.scan(metaLib)
@@ -59,9 +61,7 @@ getShell = function()
 end function
 
 
-
-
-
+//Code------------------------------------------------
 
 
 if params.len < 1 or params[0] == "h" or params[0] == "help" or params.len > 2 then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address] [-opt] [port]</b>") end if
@@ -72,12 +72,19 @@ if not metaxploit then
 	metaxploit = include_lib(current_path + "/metaxploit.so")
 end if
 
+
+// TODO: Refine?
+
 if params.len != 2 then
 	net_session = metaxploit.net_use( address )
 else
 	port = params[1].to_int
 	net_session = metaxploit.net_use( address, port )
 end if
+
+
+
+
 
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
 if not net_session then exit("Error: can't connect to net session") end if

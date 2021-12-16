@@ -7,10 +7,10 @@ Name = get_shell.host_computer.File("/bin/xdecipher")
 if not Name then Name = get_shell.host_computer.File(current_path + "/xdecipher") end if
 
 
+//Function------------------------------
 
 
-
-
+// Quits function if shell and password
 
 quit = function(shell, pass)
 	if Name then
@@ -21,11 +21,10 @@ quit = function(shell, pass)
 	shell.start_terminal
 end function
 
-
-
+// Main function
+	// Executes exploit resulting in shell and password
 
 localShell = function()
-
 	memory = metaxploit.scan(metaLib)
 	for mem in memory
 		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
@@ -56,11 +55,12 @@ localShell = function()
 		shell.start_terminal
 		if pass != null then print(pass) end if
 	end if
-	print("Attempt failed")
-	
+	print("Attempt failed")	
 end function
 
 
+// TODO: Make it work on all libs
+	// Shift trough libs
 
 meta = function()
 	n = 0
@@ -81,12 +81,11 @@ meta = function()
 		
 		metaLib = null
 	end while	
-	
 end function
 
 
 
-
+//Code----------------------------------------------------
 
 
 if params.len > 1 or params[0] == "-h" or params[0] == "-help" or params.len > 2 then exit("<b>Usage: "+program_path.split("/")[-1]+" [-opt] [test]</b>") end if

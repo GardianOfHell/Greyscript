@@ -5,19 +5,18 @@ folder = get_shell.host_computer.File("/lib")
 metaxploit = include_lib("/lib/metaxploit.so")
 info = "Name" + " " + "Memory" + " " + "Address" + "\n"
 
+//Function--------------------------------------
+
 
 getLib = function(folder)
 	if folder.is_folder == false then return null end if
 	files = folder.get_files
 	for file in files
 		Name = file.name
-		if Name == "crypto.so" or Name == "metaxploit.so" then continue end if
 		lib = file.path
 		scanLib(lib, Name)
 	end for
 end function
-
-
 
 scanLib = function(lib, Name)
 	if not lib then return null end if
@@ -34,7 +33,7 @@ scanLib = function(lib, Name)
 end function
 
 
-
+//Code------------------------------
 
 
 if not folder then exit("An error has occurred: Expected folder")
