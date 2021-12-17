@@ -25,9 +25,8 @@ portInfo = function(router, ipAddress)
         service_info = router.port_info(port)
         portNumber = port.port_number
         lan = port.get_lan_ip
-        if is_lan_ip(ipAddress) and lan != ipAddress then continue
         
-        port_status = "<#F7DC6F>open</color>" //! bug causes by <color=yellow> in "print(format_colums(info))"
+        port_status = "<#F7DC6F>open</color>" //! bug caused by <color=yellow> in "print(format_colums(info))"
         if port.is_closed then port_status = "<#FF0000>closed</color>" //! unknown
         for used in usedPorts
             ip = used.get_lan_ip
@@ -35,14 +34,14 @@ portInfo = function(router, ipAddress)
         end for
         info = info + portNumber + " " + port_status + " " + service_info  + " " + lan + "\n"
     end for
-    print(format_columns(info)) //! bug causes by <color=yellow> in "print(format_colums(info))"
+    print(format_columns(info)) //! bug caused by <color=yellow> in "print(format_colums(info))"
 end function
 
 
 //Code---------------------------------------
 
 
-if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]") end if
+if params.len != 1 or params[0] == "-h" or params[0] == "-help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]") end if
 if not is_valid_ip(params[0].trim) then exit("invalid ip address") end if
 if not get_shell.host_computer.is_network_active then exit("can't connect. No internet access.") end if
 
