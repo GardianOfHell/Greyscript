@@ -9,15 +9,24 @@ if not Name then Name = get_shell.host_computer.File(current_path + "/xdecipher"
 
 //Function------------------------------
 
+// Decipher
+
+GetPassword = function(UserPass)
+	if UserPass.len != 2 then return "decipher: wrong syntax"
+	password = cryptools.decipher(UserPass[1])
+	return password
+end function
 
 // Quits function if shell and password
-	// TODO: decipher
 
 quit = function(shell, pass)
-	if Name then
-		get_shell.launch("/bin/xdecipher", pass)
+	if cryptools then
+		UserPass = pass.split(":")
+		User = UserPass[0]
+		password = GetPassword(UserPass)
+		print("<b>User: " + User + "\n<b>Password: " + password)
 	else
-		print(pass)
+		print("<b>" + pass)
 	end if
 	shell.start_terminal
 end function
@@ -64,32 +73,24 @@ end function
 	// TODO: Make it work on all libs
 
 meta = function()
-	n = 0
-	while true
-		if n == 0 then
-			metaLib = metaxploit.load("/lib/init.so")
-		else if n == 1 then
-			metaLib = metaxploit.load("/lib/kernel_module.so")
-		else if n == 2 then
-			metaLib = metaxploit.load("/lib/net.so")
-		else if n >= 3 then 
-			exit("Explot failed")
-		end if
-		n = n+1
-		if not metaLib then continue end if
-		
-		localShell()
-		
-		metaLib = null
-	end while	
+	files = get_shell.host_computer.File("/lib")
+	if not files or not files.is_folder then return
+	files = files.get_files
+	for file in files
+		if not file.is_binary then continue
+		Name = file.name
+		metaLib = metaxploit.load("/lib/" + Name)
+		if metaLib then localShell()
+	end for
+	print("<b>Exploit failed")
 end function
 
 
 
 //Code----------------------------------------------------
 
-
-if params.len > 1 or params[0] == "-h" or params[0] == "-help" or params.len > 2 then exit("<b>Usage: "+program_path.split("/")[-1]+" [-opt] [test]</b>") end if
+if params.len != 0 then
+	if params.len >= 1 or params[0] == "-h" or params[0] == "-help" or params.len > 2 then exit("<b>Usage: "+program_path.split("/")[-1]+" [-opt] [test]</b>") end if
 end if
 	
 
@@ -98,6 +99,8 @@ if not metaxploit then
     metaxploit = include_lib(current_path + "/metaxploit.so")
 end if
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
+cryptools = include_lib("/lib/crypto.so")
+if not cryptools then cryptools = include_lib("/lib/crypto.so") end if 
 
 meta()
 
