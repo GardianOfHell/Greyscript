@@ -26,18 +26,19 @@ scan_meta = function()
             checkComp(typeObject, result)
             
             if input == 1 then
-                getBank(userFolders)
+                getMail(userFolders)
                 if Bank then quit()
             else if input == 2 then
                 getPass(userPasswd)
                 if Pass then quit()
             else if input == 3 then
-                getBank(userFolders)
+                getMail(userFolders)
                 getPass(userPasswd)
                 if Pass and Bank then quit()
             end if
         end for
     end for
+    print("Exploit failed")
 end function
 
 // Formating the result to someting the exploit can use.
@@ -74,13 +75,13 @@ end function
 // Prints stuff (passwords)
     // TODO: Rework
 
-getBank = function(userFolders)
+getMail = function(userFolders)
     Bank = false
     if not userFolders then return
     file = access
     if not file then file = comp
     for userFolder in userFolders
-        bankFile = file.File("/home/" + userFolder.name + "/Config/Bank.txt")
+        bankFile = file.File("/home/" + userFolder.name + "/Config/Mail.txt")
         if not bankFile then continue
         if not bankFile.has_permission("r") then
             print("Error: can't read file contents. Permission deniend")
@@ -125,7 +126,7 @@ GetPasswordBank = function(userBank)
 end function
 
 GetPasswordUser = function(UserPassword)
-    if UserPassword.len != 2 return
+    if UserPassword.len != 2 then return
     password = cryptools.decipher(UserPassword[1])
     return password
 end function
@@ -174,6 +175,5 @@ if not net_session then exit("Error: can't connect to net session")
 metaLib = net_session.dump_lib
 if not metaLib then exit("Error: kernel_router.so not found.")
 
-print(Version)
 scan_meta()
 

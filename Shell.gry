@@ -98,7 +98,7 @@ if not metaxploit then exit("Error: Can't find metaxploit library in the /lib pa
 if not net_session then exit("Error: can't connect to net session") end if
 metaLib = net_session.dump_lib
 cryptools = include_lib("/lib/crypto.so")
-if not cryptools then cryptools = include_lib("/lib/crypto.so") end if 
+if not cryptools then cryptools = include_lib(current_path + "/crypto.so") end if 
 
 
 getShell()
