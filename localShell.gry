@@ -3,9 +3,6 @@ Version = "v_1.0.1"
 comp = null
 shell = null
 pass = null
-Name = get_shell.host_computer.File("/bin/xdecipher")
-if not Name then Name = get_shell.host_computer.File(current_path + "/xdecipher") end if
-
 
 //Function------------------------------
 
