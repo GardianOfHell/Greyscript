@@ -3,20 +3,27 @@ Version = "v_a0.6.1"
 comp = null
 shell = null
 pass = null
-Name = get_shell.host_computer.File("/bin/xdecipher")
-if Name != get_shell.host_computer.File("/bin/xdecipher") then get_shell.host_computer.File(current_path + "/xdecipher") end if
-
 
 //Function------------------------------------------
 
+// Decipher
+
+GetPassword = function(UserPass)
+	if UserPass.len != 2 then return "decipher: wrong syntax"
+	password = cryptools.decipher(UserPass[1])
+	return password
+end function
+
 // Quits function if shell and password
-	// TODO: decipher
 
 quit = function(shell, pass)
-	if Name then
-		get_shell.launch("/bin/xdecipher", pass)
+	if cryptools then
+		UserPass = pass.split(":")
+		User = UserPass[0]
+		password = GetPassword(UserPass)
+		print("<b>User: " + User + "\n<b>Password: " + password)
 	else
-		print(pass)
+		print("<b>" + pass)
 	end if
 	shell.start_terminal
 end function
@@ -55,8 +62,8 @@ getShell = function()
 	end for
 
 	if shell then 
-		shell.start_terminal
 		if pass != null then print(pass) end if
+		shell.start_terminal
 	end if
 	print("Explot failed")
 end function
@@ -90,6 +97,8 @@ end if
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
 if not net_session then exit("Error: can't connect to net session") end if
 metaLib = net_session.dump_lib
+cryptools = include_lib("/lib/crypto.so")
+if not cryptools then cryptools = include_lib("/lib/crypto.so") end if 
 
 
 getShell()
