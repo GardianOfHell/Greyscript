@@ -35,26 +35,33 @@ localShell = function()
 	memory = metaxploit.scan(metaLib)
 	for mem in memory
 		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+
 		for add in address
 			if add == address[0] then continue end if
+			
 			if shell and pass then quit(shell, pass) end if
+
 			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
 			value = value.replace("\n", "")	
 			result = metaLib.overflow(mem, value)
+
 			if typeof(result) != "shell" and typeof(result) != "computer" then continue end if
+
 			if typeof(result) == "shell" then
 				shell = result
 				comp = result.host_computer
-				if typeof(result) == "computer" then
-					comp = result.host_computer
-				end if
-				file = comp.File("/etc/passwd")
-				if not file then continue end if
-				cont = file.get_content
-				if not cont then continue end if
-				pass = cont.split("\n")[0]
-				if shell and pass then quit(shell, pass) end if
 			end if
+
+			if typeof(result) == "computer" then
+				comp = result.host_computer
+			end if
+
+			file = comp.File("/etc/passwd")
+			if not file then continue end if
+			cont = file.get_content
+			if not cont then continue end if
+			pass = cont.split("\n")[0]
+			if shell and pass then quit(shell, pass) end if
 		end for
 	end for
 	
@@ -62,6 +69,7 @@ localShell = function()
 		shell.start_terminal
 		if pass != null then print(pass) end if
 	end if
+
 	print("Attempt failed")	
 end function
 
@@ -72,12 +80,14 @@ meta = function()
 	files = get_shell.host_computer.File("/lib")
 	if not files or not files.is_folder then return
 	files = files.get_files
+
 	for file in files
 		if not file.is_binary then continue
 		Name = file.name
 		metaLib = metaxploit.load("/lib/" + Name)
 		if metaLib then localShell()
 	end for
+	
 	print("<b>Exploit failed")
 end function
 

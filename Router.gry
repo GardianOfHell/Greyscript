@@ -10,9 +10,12 @@ file = null
 scan_meta = function()
     lanIp = user_input("Enter a LAN address: ")
     input = validInput()
+
     memory = metaxploit.scan(metaLib)
+
     for mem in memory
         address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+
         for add in address
             if add == address[0] then continue end if
             value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
@@ -21,6 +24,7 @@ scan_meta = function()
             typeObject = typeof(result)
             
             if typeObject != "file" and typeObject != "shell" and typeObject != "computer" then continue end if
+
             checkShell(typeObject, result)
             checkFile(typeObject, result)
             checkComp(typeObject, result)
@@ -38,6 +42,7 @@ scan_meta = function()
             end if
         end for
     end for
+
     print("Exploit failed")
 end function
 
@@ -65,12 +70,15 @@ end function
 
 getMail = function(comp, file)
     Bank = false
+
     if comp then userFolders = comp.File("/home").get_folders
     if file then userFolders = file.File("/home").get_folders
+
     for userFolder in userFolders
         if file then mailFile = file.File("/home/" + userFolder.name + "/Config/Mail.txt")
         if comp then mailFile = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
-        if not mailFile then continue
+
+        if not mailFile then return
         if not mailFile.has_permission("r") then
             print("Error: can't read file contents. Permission deniend")
             continue
@@ -87,13 +95,17 @@ end function
 
 getPass = function(comp, file)
     Pass = false
+
     if comp then userPasswd = comp.File("/etc/passwd")
     if file then userPasswd = file.File("/etc/passwd")
+
     if not userPasswd or not userPasswd.has_permission("r") or userPasswd.is_binary then
         print("Error: Can't access file or file is binary")
         return
     end if
+
     listUsers = userPasswd.get_content.split("\n")
+    
     for user in listUsers
         UserPassword = user.split(":")
         password = GetPasswordUser(UserPassword)

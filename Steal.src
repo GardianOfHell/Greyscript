@@ -12,6 +12,7 @@ MAIL = false
 
 scan_meta = function(address, port)
     input = validInput()
+
 	net_session = metaxploit.net_use( address, port )
 	if not net_session then exit("Error: can't connect to net session") end if
 	metaLib = net_session.dump_lib
@@ -19,13 +20,17 @@ scan_meta = function(address, port)
 
 	for mem in memory
 		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+
 		for add in address
-			if add == address[0] then continue end if			
+			if add == address[0] then continue end if
+
 			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
 			value = value.replace("\n", "")			
 			result = metaLib.overflow(mem, value)
             typeObject = typeof(result)
+
             if typeObject != "shell" and typeObject != "cumputer" and typeObject != "file" then continue
+
             checkShell(typeObject, result)
             checkFile(typeObject, result)
             checkComp(typeObject, result)
@@ -67,11 +72,15 @@ end function
 getMail = function()
     if compFile then userFolders = compFile.File("/home").get_folders
     if file then userFolders = file("/home").get_folders
+
     if not userFolders then return
+
     for userFolder in userFolders
         if compFile then MailAccount = compFile.File("/home/" + userFolder.name + "/Config/Mail.txt")
         if file then MailAccount = file("/home/" + userFolder.name + "/Config/Mail.txt")
+
         if not MailAccount or not MailAccount.has_permission("r") then continue
+
         MailAccount = MailAccount.get_content.split(":")
         mailUser = MailAccount[0]
         password = mailPass(MailAccount)
@@ -83,8 +92,11 @@ end function
 getPass = function()
     if compFile then content = compFile.File("/etc/passwd")
     if file then content = file("/etc/passwd")
+
     if not content or not content.has_permission("r") then return
+
     content = content.get_content.split("\n")
+    
     for cont in content
         con = cont.split(":")
         User = con[0]

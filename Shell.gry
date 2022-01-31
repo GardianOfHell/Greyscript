@@ -1,4 +1,4 @@
-Version = "v_a0.6.1"
+Version = "v_0.1.2"
 
 comp = null
 shell = null
@@ -33,6 +33,7 @@ end function
 
 getShell = function()
 	memory = metaxploit.scan(metaLib)
+
 	for mem in memory
 		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
 		for add in address
@@ -41,23 +42,25 @@ getShell = function()
 			
 			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
 			value = value.replace("\n", "")
-			
 			result = metaLib.overflow(mem, value)
+
 			if typeof(result) != "shell" and typeof(result) != "computer" then continue end if
+
 			if typeof(result) == "shell" then
 				shell = result
 				comp = result.host_computer
-				if typeof(result) == "computer" then
-					comp = result.host_computer
-				end if
-				file = comp.File("/etc/passwd")
-				if not file then continue end if
-				cont = file.get_content
-				if not cont then continue end if
-				pass = cont.split("\n")[0]
-				if shell and pass then quit(shell, pass) end if
 			end if
-			
+
+			if typeof(result) == "computer" then
+				comp = result.host_computer
+			end if
+
+			file = comp.File("/etc/passwd")
+			if not file then continue end if
+			cont = file.get_content
+			if not cont then continue end if
+			pass = cont.split("\n")[0]
+			if shell and pass then quit(shell, pass) end if	
 		end for
 	end for
 
@@ -65,6 +68,7 @@ getShell = function()
 		if pass != null then print(pass) end if
 		shell.start_terminal
 	end if
+
 	print("Explot failed")
 end function
 
@@ -76,30 +80,22 @@ if params.len < 1 or params[0] == "h" or params[0] == "help" or params.len > 2 t
 address = params[0]
 
 metaxploit = include_lib("/lib/metaxploit.so")
-if not metaxploit then
-	metaxploit = include_lib(current_path + "/metaxploit.so")
-end if
-
-
-// TODO: Refine?
+if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so") end if
 
 if params.len != 2 then
 	net_session = metaxploit.net_use( address )
-else
+else if params.len == 2 then
 	port = params[1].to_int
 	net_session = metaxploit.net_use( address, port )
 end if
 
-
-
-
-
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
 if not net_session then exit("Error: can't connect to net session") end if
+
 metaLib = net_session.dump_lib
+
 cryptools = include_lib("/lib/crypto.so")
 if not cryptools then cryptools = include_lib(current_path + "/crypto.so") end if 
-
 
 getShell()
 
