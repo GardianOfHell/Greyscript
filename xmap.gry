@@ -1,4 +1,4 @@
-Version = "v_1.3.2"
+Version = "v_1.4.0"
 
 info = "PORT <#00DD13>STATE</color> SERVICE VERSION LAN" + "\n" //! unknown
 
@@ -24,9 +24,14 @@ end function
     // Prints information for every optained port
 
 portInfo = function(router, ipAddress)
+    n = 0
     if not ports then return
     usedPorts = router.used_ports
     for port in ports
+        if usedPorts.len != n then 
+            n = n + 1
+            continue
+        end if
         if typeof(ports) == "string" then continue
         service_info = router.port_info(port)
         portNumber = port.port_number
