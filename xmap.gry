@@ -25,30 +25,35 @@ end function
 
 portInfo = function(router, ipAddress)
     n = 0
+
     if not ports then return
+
     usedPorts = router.used_ports
+
     for port in ports
+
         if usedPorts.len != n then 
             n = n + 1
             continue
         end if
+
         if typeof(ports) == "string" then continue
+
         service_info = router.port_info(port)
         portNumber = port.port_number
         lan = port.get_lan_ip
         
         port_status = "<#F7DC6F>open</color>" //! bug caused by <color=yellow> in "print(format_colums(info))"
         if port.is_closed then port_status = "<#FF0000>closed</color>" //! unknown
+
         for used in usedPorts
             ip = used.get_lan_ip
             if lan == ip then port_status = "<#00DD13>routed</color>" //! unknown
         end for
+
         info = info + portNumber + " " + port_status + " " + service_info  + " " + lan + "\n"
     end for
-    if typeof(ports) == "string" then 
-        print(ports)
-        return
-    end if
+
     print(format_columns(info)) //! bug caused by <color=yellow> in "print(format_colums(info))"
 end function
 
@@ -57,10 +62,10 @@ end function
 
 
 if params.len != 1 or params[0] == "-h" or params[0] == "-help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]") end if
-if not is_valid_ip(params[0].trim) then exit("invalid ip address") end if
-if not get_shell.host_computer.is_network_active then exit("can't connect. No internet access.") end if
+//if not is_valid_ip(params[0].trim) then exit("invalid ip address") end if
 
 ipAddress = params[0]
+
 if not is_lan_ip(ipAddress) then 
     router = get_router(ipAddress)
     ports = getPort(router)
@@ -69,9 +74,8 @@ if is_lan_ip(ipAddress) then
     router = get_router
     ports = localPorts(router, ipAddress)
 end if
+
 if not router then exit("Router not found")
-
-
 
 print("\nStarting xmap " + Version + " at " + current_date)
 print("Public IP: " + router.public_ip)
