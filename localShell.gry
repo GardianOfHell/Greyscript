@@ -1,4 +1,4 @@
-Version = "v_1.0.1"
+Version = "v_1.0.2"
 
 comp = null
 shell = null
@@ -91,12 +91,11 @@ end if
 	
 
 metaxploit = include_lib("/lib/metaxploit.so")
-if not metaxploit then
-    metaxploit = include_lib(current_path + "/metaxploit.so")
-end if
+if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so") end if
 if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder") end if
+
 cryptools = include_lib("/lib/crypto.so")
-if not cryptools then cryptools = include_lib("/lib/crypto.so") end if 
+if not cryptools then cryptools = include_lib(current_path + "/crypto.so") end if 
 
 meta()
 
