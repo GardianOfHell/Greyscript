@@ -67,7 +67,6 @@ end function
 
 
 // Shift trough libs
-	// TODO: Make it work on all libs
 
 meta = function()
 	files = get_shell.host_computer.File("/lib")

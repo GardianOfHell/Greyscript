@@ -1,5 +1,5 @@
 Version = "v_a0.2.0"
-access = null
+file = null
 
 //Function------------------------------------
 
@@ -26,14 +26,14 @@ scan_meta = function()
             checkComp(typeObject, result)
             
             if input == 1 then
-                getMail(userFolders)
+                getMail(comp, file)
                 if Bank then quit()
             else if input == 2 then
-                getPass(userPasswd)
+                getPass(comp, file)
                 if Pass then quit()
             else if input == 3 then
-                getMail(userFolders)
-                getPass(userPasswd)
+                getMail(comp, file)
+                getPass(comp, file)
                 if Pass and Bank then quit()
             end if
         end for
@@ -42,52 +42,40 @@ scan_meta = function()
 end function
 
 // Formating the result to someting the exploit can use.
-    // TODO: Rework
+
 checkShell = function(typeObject, result)
     if typeObject != "shell" then return
     globals.shell = result
     globals.comp = shell.host_computer
-    homeFolder = comp.File("/home")
-    passFile = comp.File("/etc/passwd")
-    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
-    if not passFile.is_folder and passFile then globals.userPasswd = passFile
 end function
 
 checkComp = function(typeObject, result)
     if typeObject != "computer" then return
     globals.comp = result
-    homeFolder = comp.File("/home")
-    passFile = comp.File("/etc/passwd")
-    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
-    if not passFile.is_folder and passFile then globals.userPasswd = passFile
+
 end function
 
 checkFile = function(typeObject, result)
     if typeObject != "file" then return
-    globals.access = result
-    homeFolder = result.File("/home")
-    passFile = result.File("/etc/passwd")
-    if homeFolder.is_folder and homeFolder then globals.userFolders = homeFolder.get_folders
-    if not passFile.is_folder and passFile then globals.userPasswd = passFile
+    globals.file = result
 end function
 
 
 // Prints stuff (passwords)
-    // TODO: Rework
 
-getMail = function(userFolders)
+getMail = function(comp, file)
     Bank = false
-    if not userFolders then return
-    file = access
-    if not file then file = comp
+    if comp then userFolders = comp.File("/home").get_folders
+    if file then userFolders = file.File("/home").get_folders
     for userFolder in userFolders
-        bankFile = file.File("/home/" + userFolder.name + "/Config/Mail.txt")
-        if not bankFile then continue
-        if not bankFile.has_permission("r") then
+        if file then mailFile = file.File("/home/" + userFolder.name + "/Config/Mail.txt")
+        if comp then mailFile = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
+        if not mailFile then continue
+        if not mailFile.has_permission("r") then
             print("Error: can't read file contents. Permission deniend")
             continue
         else
-            userBank = bankFile.get_content.split(":")
+            userBank = mailFile.get_content.split(":")
             BankPass = GetPasswordBank(userBank)
             if not BankPass then continue
             print("<b>Bank account: " + userBank[0] +"\n<v>Bank Password: " + BankPass)
@@ -97,14 +85,12 @@ getMail = function(userFolders)
 end function
 
 
-getPass = function(userPasswd)
+getPass = function(comp, file)
     Pass = false
-    if not userPasswd or not userPasswd.has_permission("r") then
-        print("Error: Can't access file")
-        return
-    end if
-    if userPasswd.is_binary then
-        print("Error: file is binary")
+    if comp then userPasswd = comp.File("/etc/passwd")
+    if file then userPasswd = file.File("/etc/passwd")
+    if not userPasswd or not userPasswd.has_permission("r") or userPasswd.is_binary then
+        print("Error: Can't access file or file is binary")
         return
     end if
     listUsers = userPasswd.get_content.split("\n")
