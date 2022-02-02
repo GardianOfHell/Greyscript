@@ -1,5 +1,5 @@
 
-compFile = null
+comp = null
 file = null
 shell = null
 PASS = false
@@ -32,7 +32,6 @@ scan_meta = function(address, port)
             if typeObject != "shell" and typeObject != "cumputer" and typeObject != "file" then continue
 
             checkShell(typeObject, result)
-            checkFile(typeObject, result)
             checkComp(typeObject, result)
 
             if input == 1 then
@@ -53,30 +52,24 @@ checkShell = function(typeObject, result)
     if typeObject != "shell" then return
     globals.shell = result
     globals.comp = shell.host_computer
-    globals.compFile = comp
 end function
 
 checkComp = function(typeObject, result)
     if typeObject != "computer" then return
     globals.comp = result
-    globals.compFile = result
 end function
 
-checkFile = function(typeObject, result)
-    if typeObject != "file" then return
-    globals.file = result
-end function
 
 // Prints stuff
 
 getMail = function()
-    if compFile then userFolders = compFile.File("/home").get_folders
+    if comp then userFolders = comp.File("/home").get_folders
     if file then userFolders = file("/home").get_folders
 
     if not userFolders then return
 
     for userFolder in userFolders
-        if compFile then MailAccount = compFile.File("/home/" + userFolder.name + "/Config/Mail.txt")
+        if comp then MailAccount = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
         if file then MailAccount = file("/home/" + userFolder.name + "/Config/Mail.txt")
 
         if not MailAccount or not MailAccount.has_permission("r") then continue
@@ -90,7 +83,7 @@ getMail = function()
 end function
 
 getPass = function()
-    if compFile then content = compFile.File("/etc/passwd")
+    if comp then content = comp.File("/etc/passwd")
     if file then content = file("/etc/passwd")
 
     if not content or not content.has_permission("r") then return
