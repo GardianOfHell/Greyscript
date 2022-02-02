@@ -25,7 +25,7 @@ end function
     // Prints information for every optained port
 
 portInfo = function(router, ipAddress, local)
-    n = 0
+    n = true
 
     if not ports then return
 
@@ -33,16 +33,16 @@ portInfo = function(router, ipAddress, local)
 
     for port in ports
 
-        if usedPorts.len != n and not local then 
-            n = n + 1
-            continue
-        end if
-
         if typeof(ports) == "string" then continue
 
         service_info = router.port_info(port)
         portNumber = port.port_number
         lan = port.get_lan_ip
+
+        if n and not local then 
+            if portNumber != 8080 then continue
+            n = false
+        end if
         
         port_status = "<#F7DC6F>open</color>" //! bug caused by <color=yellow> in "print(format_colums(info))"
         if port.is_closed then port_status = "<#FF0000>closed</color>" //! unknown
