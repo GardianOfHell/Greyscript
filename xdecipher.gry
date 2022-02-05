@@ -10,7 +10,7 @@ xdecipher = function(filepath, text)
 	Path = filepath.split(":")
 
 	if Path.len == 1 then
-		if not filepath.has_permission("r") then return
+		if not file.has_permission("r") then return
 		if file.get_content.len == 0 then return
 
 		lines = file.get_content.split("\n")
@@ -27,7 +27,7 @@ xdecipher = function(filepath, text)
 				numLine = numLine + 1
 			end for
 
-			while validInput
+			while true
 				input = user_input("Select user: ").to_int
 				if typeof(input) != "number" or input < 1 or input > lines.len then continue
 				break

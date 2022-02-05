@@ -1,6 +1,5 @@
 
 comp = null
-file = null
 shell = null
 PASS = false
 MAIL = false
@@ -29,7 +28,7 @@ scan_meta = function(address, port)
 			result = metaLib.overflow(mem, value)
             typeObject = typeof(result)
 
-            if typeObject != "shell" and typeObject != "cumputer" and typeObject != "file" then continue
+            if typeObject != "shell" and typeObject != "cumputer" then continue
 
             checkShell(typeObject, result)
             checkComp(typeObject, result)
@@ -64,13 +63,11 @@ end function
 
 getMail = function()
     if comp then userFolders = comp.File("/home").get_folders
-    if file then userFolders = file("/home").get_folders
 
     if not userFolders then return
 
     for userFolder in userFolders
         if comp then MailAccount = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
-        if file then MailAccount = file("/home/" + userFolder.name + "/Config/Mail.txt")
 
         if not MailAccount or not MailAccount.has_permission("r") then continue
 
@@ -84,7 +81,6 @@ end function
 
 getPass = function()
     if comp then content = comp.File("/etc/passwd")
-    if file then content = file("/etc/passwd")
 
     if not content or not content.has_permission("r") then return
 

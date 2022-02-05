@@ -52,7 +52,7 @@ getShell = function()
 			end if
 
 			if typeof(result) == "computer" then
-				comp = result.host_computer
+				comp = result
 			end if
 
 			file = comp.File("/etc/passwd")
