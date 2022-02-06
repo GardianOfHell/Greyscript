@@ -1,8 +1,7 @@
 
 comp = null
 shell = null
-PASS = false
-MAIL = false
+file = null
 
 //Function---------------------------------------
 
@@ -32,13 +31,14 @@ scan_meta = function(address, port)
 
             checkShell(typeObject, result)
             checkComp(typeObject, result)
+            checkFile(typeObject, result)
 
             if input == 1 then
                 getMail()
-                if MAIL then quit()
+                if Mail then quit()
             else if input == 2 then
                 getPass()
-                if PASS then quit()
+                if Pass then quit()
             end if
         end for
     end for
@@ -58,55 +58,114 @@ checkComp = function(typeObject, result)
     globals.comp = result
 end function
 
+checkFile = function(typeObject, result)
+    if typeObject != "file" then return
+    globals.file = result
+end function
+
 
 // Prints stuff
 
 getMail = function()
-    if comp then userFolders = comp.File("/home").get_folders
+    Mail = false
+    info = ""
 
-    if not userFolders then return
+    if comp then userFolders = comp.File("/home").get_folders
+    if file then
+        while file.path != "/"
+            file = file.parent
+        end while
+
+        folders = file.get_folders
+
+        for folder in folders
+            if folder.path == "/home" then file = folder
+        end for
+
+        userFolders = file.get_folders
+    end if
 
     for userFolder in userFolders
-        if comp then MailAccount = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
+        if comp then mailFile = comp.File("/home/" + userFolder.name + "/Config/Mail.txt")
+        if file then
+            folders = userFolder.get_folders
+            for folder in folders
+                if folder.name != "Config" then continue
+                files = folder.get_files
+                for file in files
+                    if file.name != "Mail.txt" then continue
+                    mailFile = file
+                end for
+            end for
+        end if
 
-        if not MailAccount or not MailAccount.has_permission("r") then continue
-
-        MailAccount = MailAccount.get_content.split(":")
-        mailUser = MailAccount[0]
-        password = mailPass(MailAccount)
-        print("<b>Mail: " + mailUser + "\n<b>Password: " + password)
-        globals.MAIL = true
+        if not mailFile then continue
+        if not mailFile.has_permission("r") then
+            print("Error: can't read file contents. Permission deniend")
+            continue
+        else
+            userMail = mailFile.get_content.split(":")
+            MailPass = GetPasswordMail(userMail)
+            if not MailPass then continue
+            info = info + "<b>Mail account: " + userMail[0] +"\n<b>Mail Password: " + MailPass + "\n" + "\n"
+            globals.Mail = true
+            mailFile = null
+        end if
     end for
+    print(info)
 end function
 
 getPass = function()
-    if comp then content = comp.File("/etc/passwd")
+    Pass = false
+    info = ""
 
-    if not content or not content.has_permission("r") then return
+    if comp then userPasswd = comp.File("/etc/passwd")
+    if file then
+        while file.path != "/"
+            file = file.parent
+        end while
 
-    content = content.get_content.split("\n")
+        folders = file.get_folders
+
+        for folder in folders
+            if folder.name != "etc" then continue
+            passFiles = folder.get_files
+        end for
+
+        for passFile in passFiles
+            if passFile.name != "passwd" then continue
+            userPasswd = passFile
+        end for
+    end if
+
+    if not userPasswd or not userPasswd.has_permission("r") or userPasswd.is_binary then
+        print("Error: Can't access file or file is binary")
+        return
+    end if
+
+    listUsers = userPasswd.get_content.split("\n")
     
-    for cont in content
-        con = cont.split(":")
-        User = con[0]
-        password = userPass(con)
+    for user in listUsers
+        UserPassword = user.split(":")
+        password = GetPasswordUser(UserPassword)
         if not password then continue
-        print("<b>User: " + User + "\n<b>Password: " + password)
-        globals.PASS = true
+        info = info + "<b>User: " + UserPassword[0] + "\n<b>Password: " + password + "\n" + "\n"
+        globals.Pass = true
     end for
+    print(info)
 end function
 
 // Decipher password
 
-mailPass = function(MailAccount)
-    if MailAccount.len != 2 then return
-    password = cryptools.decipher(MailAccount[1])
+GetPasswordMail = function(userMail)
+    if userMail.len != 2 then return
+    password = cryptools.decipher(userMail[1])
     return password
 end function
 
-userPass = function(con)
-    if con.len != 2 then return
-    password = cryptools.decipher(con[1])
+GetPasswordUser = function(UserPassword)
+    if UserPassword.len != 2 then return
+    password = cryptools.decipher(UserPassword[1])
     return password
 end function
 
