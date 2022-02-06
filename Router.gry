@@ -1,49 +1,51 @@
-
-comp = null
-shell = null
 file = null
+shell = null
+comp = null
 
-//Function---------------------------------------
+//Function------------------------------------
+
 
 // Main function
-    // Executes exploit
+    // Executes exploit resulting in shell and password
 
-scan_meta = function(address, port)
+scan_meta = function()
+    lanIp = user_input("Enter a LAN address: ")
     input = validInput()
 
-	net_session = metaxploit.net_use( address, port )
-	if not net_session then exit("Error: can't connect to net session") end if
-	metaLib = net_session.dump_lib
-	memory = metaxploit.scan(metaLib)
+    memory = metaxploit.scan(metaLib)
 
-	for mem in memory
-		address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
+    for mem in memory
+        address = metaxploit.scan_address(metaLib,mem).split("Unsafe check:")
 
-		for add in address
-			if add == address[0] then continue end if
-
-			value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
-			value = value.replace("\n", "")			
-			result = metaLib.overflow(mem, value)
+        for add in address
+            if add == address[0] then continue end if
+            value = add[add.indexOf("<b>")+3:add.indexOf("</b>")]
+            value = value.replace("\n", "")	
+            result = metaLib.overflow(mem, value, lanIp)
             typeObject = typeof(result)
-
-            if typeObject != "shell" and typeObject != "cumputer" then continue
+            
+            if typeObject != "file" and typeObject != "shell" and typeObject != "computer" then continue end if
 
             checkShell(typeObject, result)
-            checkComp(typeObject, result)
             checkFile(typeObject, result)
-
+            checkComp(typeObject, result)
+            
             if input == 1 then
-                getMail()
+                getMail(comp, file)
                 if Mail then quit()
             else if input == 2 then
-                getPass()
+                getPass(comp, file)
                 if Pass then quit()
+            else if input == 3 then
+                getMail(comp, file)
+                getPass(comp, file)
+                if Pass and Mail then quit()
             end if
         end for
     end for
-end function
 
+    print("Exploit failed")
+end function
 
 // Formating the result to someting the exploit can use.
 
@@ -56,6 +58,7 @@ end function
 checkComp = function(typeObject, result)
     if typeObject != "computer" then return
     globals.comp = result
+
 end function
 
 checkFile = function(typeObject, result)
@@ -64,9 +67,9 @@ checkFile = function(typeObject, result)
 end function
 
 
-// Prints stuff
+// Prints stuff (passwords)
 
-getMail = function()
+getMail = function(comp, file)
     Mail = false
     info = ""
 
@@ -115,7 +118,8 @@ getMail = function()
     print(info)
 end function
 
-getPass = function()
+
+getPass = function(comp, file)
     Pass = false
     info = ""
 
@@ -155,12 +159,12 @@ getPass = function()
     print(info)
 end function
 
-// Decipher password
+// Password cracking
 
-GetPasswordMail = function(userMail)
-    if userMail.len != 2 then return
-    password = cryptools.decipher(userMail[1])
-    return password
+GetPasswordMail = function(userBank)
+	if userBank.len != 2 then return
+	password = cryptools.decipher(userBank[1])
+	return password
 end function
 
 GetPasswordUser = function(UserPassword)
@@ -174,12 +178,12 @@ end function
 validInput = function()
     while true
         print("\n")
-        print("1: Mailaccounts" + "\n2: Passwords")
+        print("1: Mailaccounts" + "\n2: Passwords" + "\n3: Both")
         input = user_input("Choose: ").trim
         
         if input < 1 then
             print("Invalid input")
-        else if input > 2 then
+        else if input > 3 then
             print("Invalid input")
         else
             break
@@ -188,24 +192,29 @@ validInput = function()
     return input
 end function
 
+
 quit = function()
     exit("Exploit successful")
 end function
 
-//Code--------------------------------------------------
 
-if params.len != 2 or params[0] == "-h" or params[0] == "-help" then exit("<b>Usage: " + program_path.split("/")[-1] + " [ipAddresse] [port]")
+//Code-------------------------------
+
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit("<b>Usage: "+program_path.split("/")[-1]+" [ip_address]</b>")
+
 address = params[0]
-port = params[1].to_int
-if not is_valid_ip(address) then exit("Invalid ip")
 
 metaxploit = include_lib("/lib/metaxploit.so")
 if not metaxploit then metaxploit = include_lib(current_path + "/metaxploit.so")
-if not metaxploit then exit("Metaxploit not found")
+if not metaxploit then exit("Error: Can't find metaxploit library in the /lib path or the current folder")
 
 cryptools = include_lib("/lib/crypto.so")
-if not cryptools then include_lib(current_path + "/crypto.so")
-if not cryptools then exit("Crypto not found")
+if not cryptools then cryptools = include_lib(current_path + "/crypto.so")
+if not cryptools then exit("Error: Can't find crypto.so library in the /lib path or the current folder")
 
-scan_meta(address, port)
-print("Exploit failed")
+net_session = metaxploit.net_use( address )
+if not net_session then exit("Error: can't connect to net session")
+metaLib = net_session.dump_lib
+if not metaLib then exit("Error: kernel_router.so not found.")
+
+scan_meta()
